@@ -135,7 +135,11 @@ public class GameUI : MonoBehaviour
             cardImage.sprite = LoadCardSprite(c);
             cardImage.color = Color.white;
             card.name = "Card_" + (i + 1);
-            card.GetComponent<RectTransform>().localPosition = new Vector3(i * 130 - 260, 0, 0);
+            //动态间距+居中：按手牌区实际宽度自适应，任何分辨率都完整可见
+            //（竖屏750宽时spacing≈118总跨≈710两侧留20；横屏时spacing封顶130，与原布局一致）
+            RectTransform handRt = handPanel.GetComponent<RectTransform>();
+            float spacing = Mathf.Min(130f, (handRt.rect.width - 160f) / Mathf.Max(1, human.handCards.Count - 1));
+            card.GetComponent<RectTransform>().localPosition = new Vector3((i - (human.handCards.Count - 1) / 2f) * spacing, 0, 0);
             shownCards.Add(card);
         }
     }
@@ -159,5 +163,17 @@ public class GameUI : MonoBehaviour
         settlePanel.GetComponent<RectTransform>().sizeDelta = new Vector2(600, 320);
         messageText.gameObject.SetActive(false);  //隐藏全局消息条（重叠来源）
         settlePanel.SetActive(true);
+
+        // ===== [TEMP] 运行时取证日志，仅诊断用，验收后整段删除，零逻辑改动 =====
+        RectTransform panelRt = settlePanel.GetComponent<RectTransform>();
+        Debug.Log(
+            "[TEMP] 1.settlePanel.rect.height=" + panelRt.rect.height +
+            " | 2.rankText.rect.height=" + rankText.rectTransform.rect.height +
+            " | 3.rankText.preferredHeight=" + rankText.preferredHeight +
+            " | 4.lines=" + s.Split('\n').Length +
+            " fontSize=" + rankText.fontSize +
+            " lineSpacing=" + rankText.lineSpacing +
+            " | 5.verticalOverflow=" + rankText.verticalOverflow);
+        // ===== [TEMP] end =====
     }
 }
