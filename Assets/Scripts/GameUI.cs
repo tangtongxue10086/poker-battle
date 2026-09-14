@@ -71,6 +71,7 @@ public class GameUI : MonoBehaviour
         else if (settlePanel.activeSelf)
         {
             settlePanel.SetActive(false);
+            messageText.gameObject.SetActive(true);  //退出结算，恢复全局消息条
         }
     }
     //放入真实扑克图片
@@ -149,7 +150,14 @@ public class GameUI : MonoBehaviour
         {
             s += "第" + (i + 1) + "名 " + ranked[i].playerName + "  " + ranked[i].totalScore + "分\n";
         }
+        //注意：循环里每行已带\n，这里直接拼接即为第6行，不要再加空行
+        //（之前多加了一个"\n"空行，7行 x ~32px ≈ 224px，超出文本框220px，末行被Truncate裁掉）
+        s += "本局结束！按【空格】再来一局（分数累计）";
         rankText.text = s;
+        rankText.color = Color.white;  //面板是86%黑底，原黑字几乎不可读
+        //代码加高面板：6行 x ~32px(24号字MSYH行高) ≈ 192px + 40px内边距，260太紧，加高到320留足余量
+        settlePanel.GetComponent<RectTransform>().sizeDelta = new Vector2(600, 320);
+        messageText.gameObject.SetActive(false);  //隐藏全局消息条（重叠来源）
         settlePanel.SetActive(true);
     }
 }
